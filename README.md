@@ -5,6 +5,7 @@ A simple website for connecting with people and getting to know what every frien
 Features
 --------
 - **Local Authentication** using Email and Password
+- **OAuth 1.0a Authentication** via Twitter
 - **OAuth 2.0 Authentication** via Facebook, Google
 - Create new posts.
 - Like, comment and share posts.

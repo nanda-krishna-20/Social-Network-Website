@@ -30,6 +30,16 @@ router.get('/auth/google/callback', passport.authenticate('google-signup', {
   failureFlash: true,
 }));
 
+// Twitter Sign Up route
+router.get('/auth/twitter', passport.authenticate('twitter-signup', { scope: ['email'] }));
+
+// Twitter Sign Up callback route
+router.get('/auth/twitter/callback', passport.authenticate('twitter-signup', {
+  successRedirect: '/login',
+  failureRedirect: '/signup',
+  failureFlash: true,
+}));
+
 // Local Sign up route
 router.post('/signUp', isLoggedIn, [
   // First Name and Last Name should be of atmost 50 characters long

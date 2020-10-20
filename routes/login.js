@@ -44,4 +44,14 @@ router.get('/auth/google/callback', passport.authenticate('google-login', {
   failureFlash: true,
 }));
 
+// Twitter authentication route
+router.get('/auth/twitter', passport.authenticate('twitter-login'));
+
+// Twitter authentication callback route
+router.get('/auth/twitter/callback', passport.authenticate('twitter-login', { 
+  successRedirect: '/profile',
+  failureRedirect: '/login',
+  failureFlash: true,
+}));
+
 module.exports = router;

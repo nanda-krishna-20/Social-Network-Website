@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     gender: DataTypes.STRING,
     facebookId: DataTypes.STRING,
     googleId: DataTypes.STRING,
+    twitterId: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'User',

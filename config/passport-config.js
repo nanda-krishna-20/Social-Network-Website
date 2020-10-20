@@ -1,8 +1,8 @@
 const LocalStrategy = require('passport-local');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const TwitterStrategy = require('passport-twitter');
 const bcrypt = require('bcrypt');
-const { facebookAuth, googleAuth } = require('./auth');
 
 function initialize(passport, db) {
   passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
@@ -28,9 +28,9 @@ function initialize(passport, db) {
   }));
 
   passport.use('facebook-login', new FacebookStrategy({
-    clientID: facebookAuth.clientID,
-    clientSecret: facebookAuth.clientSecret,
-    callbackURL: facebookAuth.callbackURLLogin,
+    clientID: process.env.FACEBOOK_ID,
+    clientSecret: process.env.FACEBOOK_SECRET,
+    callbackURL: `${process.env.BASE_URL}/login/auth/facebook/callback`,
     profileFields: ['id'],
   }, (accessToken, refreshToken, profile, done) => {
     db.User.findOne({
@@ -55,12 +55,11 @@ function initialize(passport, db) {
   }));
 
   passport.use('google-login', new GoogleStrategy({
-    clientID: googleAuth.clientID,
-    clientSecret: googleAuth.clientSecret,
-    callbackURL: googleAuth.callbackURLLogin,
+    clientID: process.env.GOOGLE_ID,
+    clientSecret: process.env.GOOGLE_SECRET,
+    callbackURL: `${process.env.BASE_URL}/login/auth/google/callback`,
     profileFields: ['id'],
   }, (accessToken, refreshToken, profile, done) => {
-    console.log(profile);
     db.User.findOne({
       where: {
         googleId: JSON.stringify(profile.id),
@@ -82,15 +81,41 @@ function initialize(passport, db) {
     }).catch((err) => done(err));
   }));
 
+  passport.use('twitter-login', new GoogleStrategy({
+    consumerKey: process.env.TWITTER_KEY,
+    consumerSecret: process.env.TWITTER_SECRET,
+    callbackURL: `${process.env.BASE_URL}/login/auth/twitter/callback`,
+    profileFields: ['id'],
+  }, (accessToken, tokenSecret, profile, done) => {
+    db.User.findOne({
+      where: {
+        twitterId: JSON.stringify(profile.id),
+      },
+    }).then((user) => {
+      if (!user) {
+        return done(null, false, { message: 'This google account is not registered' });
+      }
+
+      bcrypt.compare(accessToken, user.password)
+        .then((validPassword) => {
+          if (validPassword) {
+            return done(null, user);
+          }
+
+          return done(null, false, { message: 'Password Incorrect' });
+        })
+        .catch((err) => done(err));
+    }).catch((err) => done(err));
+  }));
+
+
   passport.use('facebook-signup', new FacebookStrategy({
-    clientID: facebookAuth.clientID,
-    clientSecret: facebookAuth.clientSecret,
-    callbackURL: facebookAuth.callbackURLSignUp,
+    clientID: process.env.FACEBOOK_ID,
+    clientSecret: process.env.FACEBOOK_SECRET,
+    callbackURL: `${process.env.BASE_URL}/signUp/auth/facebook/callback`,
     profileFields: ['id', 'emails', 'name', 'gender'],
   },
   (accessToken, refreshToken, profile, done) => {
-    console.log(profile);
-
     bcrypt.hash(JSON.stringify(accessToken), 10).then((hashedPassword) => {
       db.User.findOrCreate({
         where: {
@@ -115,12 +140,11 @@ function initialize(passport, db) {
   }));
 
   passport.use('google-signup', new GoogleStrategy({
-    clientID: googleAuth.clientID,
-    clientSecret: googleAuth.clientSecret,
-    callbackURL: googleAuth.callbackURLSignUp,
+    clientID: process.env.GOOGLE_ID,
+    clientSecret: process.env.GOOGLE_SECRET,
+    callbackURL: `${process.env.BASE_URL}/signUp/auth/google/callback`,
     profileFields: ['id', 'emails', 'name', 'gender'],
   }, (accessToken, refreshToken, profile, done) => {
-    console.log(profile);
     bcrypt.hash(JSON.stringify(accessToken), 10).then((hashedPassword) => {
       db.User.findOrCreate({
         where: {
@@ -140,6 +164,35 @@ function initialize(passport, db) {
         }
 
         return done(null, false, { message: 'This facebook account is already registered' });
+      }).catch((err) => done(err));
+    }).catch((err) => done(err));
+  }));
+
+  passport.use('twitter-signup', new TwitterStrategy({
+    consumerKey: process.env.TWITTER_KEY,
+    consumerSecret: process.env.TWITTER_SECRET,
+    callbackURL: `${process.env.BASE_URL}/signUp/auth/twitter/callback`,
+    profileFields: ['id', 'emails', 'name', 'gender'],
+  }, (accessToken, tokenSecret, profile, done) => {
+    bcrypt.hash(JSON.stringify(accessToken), 10).then((hashedPassword) => {
+      db.User.findOrCreate({
+        where: {
+          twitterId: JSON.stringify(profile.id),
+        },
+        defaults: {
+          firstName: profile.name.givenName,
+          lastName: profile.name.familyName,
+          gender: profile.gender,
+          username: profile.name.givenName + profile.name.familyName + profile.provider,
+          email: profile.emails[0].value,
+          password: hashedPassword,
+        },
+      }).then(([user, created]) => {
+        if (created) {
+          return done(null, user);
+        }
+
+        return done(null, false, { message: 'This twitter account is already registered' });
       }).catch((err) => done(err));
     }).catch((err) => done(err));
   }));
