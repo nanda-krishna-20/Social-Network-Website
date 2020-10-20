@@ -1,24 +1,29 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Posts', {
-      postId: {
+    await queryInterface.createTable('FriendRequests', {
+      requestId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      userId: {
+      requestingUserId: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        references: { model: 'Users', key: 'userId' },
       },
-      caption: {
-        type: Sequelize.STRING,
+      requestedUserId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
       },
-      likes: {
-        types: Sequelize.INTEGER,
-        default: 0,
+      dateRequested: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+      statusId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: { model: 'Statuses', key: 'statusId' },
       },
       createdAt: {
         allowNull: false,
@@ -31,6 +36,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Posts');
+    await queryInterface.dropTable('FriendRequests');
   },
 };

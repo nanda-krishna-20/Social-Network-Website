@@ -31,7 +31,12 @@ module.exports = {
         type: Sequelize.STRING,
       },
       gender: {
-        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      facebookId: {
+        type: Sequelize.STRING,
+      },
+      googleId: {
         type: Sequelize.STRING,
       },
       createdAt: {
