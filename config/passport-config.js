@@ -1,7 +1,8 @@
 const LocalStrategy = require('passport-local');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-const TwitterStrategy = require('passport-twitter');
+const TwitterStrategy = require('passport-twitter').Strategy;
+const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 const bcrypt = require('bcrypt');
 
 function initialize(passport, db) {
@@ -107,7 +108,32 @@ function initialize(passport, db) {
         .catch((err) => done(err));
     }).catch((err) => done(err));
   }));
+  passport.use('linkedin-login', new GoogleStrategy({
+    consumerKey: process.env.LINKEDIN_ID,
+    consumerSecret: process.env.LINKEDIN_SECRET,
+    callbackURL: `${process.env.BASE_URL}/login/auth/linkedin/callback`,
+    scope: ['r_liteprofile'],
+  }, (accessToken, tokenSecret, profile, done) => {
+    db.User.findOne({
+      where: {
+        linkedinId: JSON.stringify(profile.id),
+      },
+    }).then((user) => {
+      if (!user) {
+        return done(null, false, { message: 'This linkedin account is not registered' });
+      }
 
+      bcrypt.compare(accessToken, user.password)
+        .then((validPassword) => {
+          if (validPassword) {
+            return done(null, user);
+          }
+
+          return done(null, false, { message: 'Password Incorrect' });
+        })
+        .catch((err) => done(err));
+    }).catch((err) => done(err));
+  }));
 
   passport.use('facebook-signup', new FacebookStrategy({
     clientID: process.env.FACEBOOK_ID,
@@ -193,6 +219,35 @@ function initialize(passport, db) {
         }
 
         return done(null, false, { message: 'This twitter account is already registered' });
+      }).catch((err) => done(err));
+    }).catch((err) => done(err));
+  }));
+
+  passport.use('linkedin-signup', new LinkedInStrategy({
+    consumerKey: process.env.LINKEDIN_ID,
+    consumerSecret: process.env.LINKEDIN_SECRET,
+    callbackURL: `${process.env.BASE_URL}/signUp/auth/linkedin/callback`,
+    scope: ['r_liteprofile', 'r_emailaddress'],
+  }, (accessToken, tokenSecret, profile, done) => {
+    bcrypt.hash(JSON.stringify(accessToken), 10).then((hashedPassword) => {
+      db.User.findOrCreate({
+        where: {
+          linkedinId: JSON.stringify(profile.id),
+        },
+        defaults: {
+          firstName: profile.name.givenName,
+          lastName: profile.name.familyName,
+          gender: profile.gender,
+          username: profile.name.givenName + profile.name.familyName + profile.provider,
+          email: profile.emails[0].value,
+          password: hashedPassword,
+        },
+      }).then(([user, created]) => {
+        if (created) {
+          return done(null, user);
+        }
+
+        return done(null, false, { message: 'This linkedin account is already registered' });
       }).catch((err) => done(err));
     }).catch((err) => done(err));
   }));

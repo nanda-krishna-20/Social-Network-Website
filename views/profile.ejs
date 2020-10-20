@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello</title>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <br>
+  <%- include('partials/postBox') %>
+
+  <div class="profileInfoContainer">
+    <div class="myProfileHeading">
+      <h3>Profile Information</h3>
+    </div>
+
+    <div>
+      <form>
+        <div>
+          <label for="firstName">First Name: </label>
+          <input type="text" id="firstName" value="">
+        </div>
+        <br>
+        <div>
+          <label for="lastName">Last Name: </label>
+          <input type="text" id="lastName" value="">
+        </div>
+        <br>
+        <div>
+          <label for="gender">Gender: </label>
+          <input type="text" id="gender" value="">
+        </div>
+        <br>
+        <div>
+          <label for="phone">Phone: </label>
+          <input type="number" id="phone" value="">
+        </div>
+        <br>
+        <div>
+          <label for="email">Email: </label>
+          <input type="email" id="email" value="">
+        </div>
+        <br>
+        <div>
+          <label for="dob">Date of Birth: </label>
+          <input type="date" id="dob" value="">
+        </div>
+        <br>
+        <div>
+          <label for="city">City: </label>
+          <input type="text" id="city" value="">
+        </div>
+        <br>
+        <div>
+          <label for="state">State: </label>
+          <input type="text" id="state" value="">
+        </div>
+        <br>
+        <div>
+          <label for="country">Country: </label>
+          <input type="text" id="country" value="">
+        </div>
+        <br>
+        <div>
+          <label for="school">School: </label>
+          <input type="text" id="school" value="">
+        </div>
+        <br>
+        <div>
+          <label for="college">College: </label>
+          <input type="text" id="college" value="">
+        </div>
+        <br>
+        <div>
+          <label for="work">Work: </label>
+          <input type="text" id="work" value="">
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+  <div id="timeline" class="timeline">
+    <% posts.forEach((post) => { %>
+      <div id="postContainer" class="postContainer">
+        <%= user.firstName + user.lastName %> posted <%= post.createdAt %> ago
+        <br>
+        <p><%= post.caption %></p>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>

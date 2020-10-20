@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello</title>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <br>
+  <%- include('partials/postBox') %>
+
+  <div id="timeline" class="timeline">
+    <% posts.forEach((post) => { %>
+      <div id="postContainer" class="postContainer">
+        <%= user.firstName + user.lastName %> posted <%= post.createdAt %> ago
+        <br>
+        <p><%= post.caption %></p>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>

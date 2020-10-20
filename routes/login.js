@@ -48,7 +48,17 @@ router.get('/auth/google/callback', passport.authenticate('google-login', {
 router.get('/auth/twitter', passport.authenticate('twitter-login'));
 
 // Twitter authentication callback route
-router.get('/auth/twitter/callback', passport.authenticate('twitter-login', { 
+router.get('/auth/twitter/callback', passport.authenticate('twitter-login', {
+  successRedirect: '/profile',
+  failureRedirect: '/login',
+  failureFlash: true,
+}));
+
+// Linkedin authentication route
+router.get('/auth/linkedin', passport.authenticate('linkedin-login'));
+
+// Linkedin authentication callback route
+router.get('/auth/linkedin/callback', passport.authenticate('linkedin-login', {
   successRedirect: '/profile',
   failureRedirect: '/login',
   failureFlash: true,

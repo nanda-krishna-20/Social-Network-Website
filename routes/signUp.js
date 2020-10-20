@@ -1,4 +1,5 @@
 const express = require('express');
+const { check, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const { isLoggedIn } = require('../controllers/helperFunctions/loggedInCheck');
 const validate = require('../controllers/helperFunctions/validationResultHandler');
@@ -35,6 +36,16 @@ router.get('/auth/twitter', passport.authenticate('twitter-signup', { scope: ['e
 
 // Twitter Sign Up callback route
 router.get('/auth/twitter/callback', passport.authenticate('twitter-signup', {
+  successRedirect: '/login',
+  failureRedirect: '/signup',
+  failureFlash: true,
+}));
+
+// Linkedin Sign Up route
+router.get('/auth/linkedin', passport.authenticate('linkedin-signup', { scope: ['r_liteprofile'] }));
+
+// Linkedin Sign Up callback route
+router.get('/auth/linkedin/callback', passport.authenticate('linkedin-signup', {
   successRedirect: '/login',
   failureRedirect: '/signup',
   failureFlash: true,

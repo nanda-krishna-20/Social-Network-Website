@@ -41,6 +41,9 @@ module.exports = {
       twitterId: {
         type: Sequelize.STRING,
       },
+      linkedinId: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
